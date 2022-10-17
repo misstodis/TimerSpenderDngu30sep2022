@@ -22,7 +22,7 @@ namespace TimerSpenderDngu30sep2022
             dateOfTaskDngu = p_dateOfTask; 
         }
 
-        public string GetDoingDngu()
+        public string GetTaskDngu()
         {
             return doingDngu;
         }

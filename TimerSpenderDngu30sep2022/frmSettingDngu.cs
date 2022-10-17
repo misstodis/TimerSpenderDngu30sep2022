@@ -26,14 +26,14 @@ namespace TimerSpenderDngu30sep2022
         bool showExcelDngu = false;
         TimeSpenderDngu formMainDngu = new TimeSpenderDngu();
         //define a list 
-        List<DoingDngu> taskListDngu = new List<DoingDngu>();
-        List<DoingDngu> taskDoneListDngu = new List<DoingDngu>();
+        List<DoingDngu> listTaskDngu = new List<DoingDngu>();
+        List<string> defaultListTaskDngu = new List<string>();
         // define time spend
         int timeSpendDngu;
         //define a default path for save log
         string defaultSaveLogDngu;
         //make a delegate to comunicate with main form (SEND info from this to the main form)
-        public delegate void sendToMainForm(List<DoingDngu> list, int p_timeSpendDngu, string p_defaultSaveLogDngu);
+        public delegate void sendToMainForm(List<DoingDngu> list, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu);
         public sendToMainForm sendInfoToMainForm;
         //chart types
         string[] chartTypes = new string[] {"Column", "Bar", "Pie" };
@@ -50,12 +50,13 @@ namespace TimerSpenderDngu30sep2022
         // date
         DateTime dateTimeNowDngu = DateTime.Now;
 
+
         // define form contructor with a parmameter to GET information from main form
-        public frmSettingDngu(List<DoingDngu> p_taskListDngu, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<DoingDngu> p_messageListDngu)
+        public frmSettingDngu(List<DoingDngu> p_taskListDngu, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu)
         {
             InitializeComponent();
             //get the task list from main form
-            taskListDngu = p_taskListDngu;
+            listTaskDngu = p_taskListDngu;
             // set time to timeSpendDngu
             timeSpendDngu = p_timeSpendDngu;
             // set value for numerUpdown box
@@ -64,20 +65,18 @@ namespace TimerSpenderDngu30sep2022
             defaultSaveLogDngu = p_defaultSaveLogDngu;
             // show save path in text box
             txbFilelocationDngu.Text = p_defaultSaveLogDngu;
-            taskDoneListDngu = p_messageListDngu;
+
+            defaultListTaskDngu = p_defaultListTaskDngu;
         }
 
-        private void LoadDefaultTaskToListBoxDngu(List<DoingDngu> listDngu)
+        private void LoadDefaultTaskToListBoxDngu()
         {
             // clear listbox
             lsbTaskDngu.Items.Clear();
             //load defautl task to list box
-            foreach (var item in listDngu)
+            foreach (var item in defaultListTaskDngu)
             {
-                if (item.GetIsDefaultDngu())
-                {
-                    lsbTaskDngu.Items.Add(item.GetDoingDngu());
-                }
+                lsbTaskDngu.Items.Add(item);
             }
         }
 
@@ -86,21 +85,21 @@ namespace TimerSpenderDngu30sep2022
             // clean the chart
             crtStatsDngu.Series["Time spend"].Points.Clear();
             //loop and print information to chart
-            for (int i = 0; i < taskDoneListDngu.Count(); i++)
+            for (int i = 0; i < listTaskDngu.Count(); i++)
             {
                 // check for slected type of the chart
                 switch (chartType)
                 {
                     case "Pie":
-                        crtStatsDngu.Series["Time spend"].Points.Add(taskDoneListDngu[i].GetCountTimeDngu());
-                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = taskDoneListDngu[i].GetCountTimeDngu().ToString();
-                        crtStatsDngu.Series["Time spend"].Points[i].LegendText = taskDoneListDngu[i].GetDoingDngu();
+                        crtStatsDngu.Series["Time spend"].Points.Add(listTaskDngu[i].GetCountTimeDngu());
+                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = listTaskDngu[i].GetCountTimeDngu().ToString();
+                        crtStatsDngu.Series["Time spend"].Points[i].LegendText = listTaskDngu[i].GetTaskDngu();
                         crtStatsDngu.Series["Time spend"].Points[i].Color = Color.FromArgb(randomColor.Next(0, 225), randomColor.Next(0, 225), randomColor.Next(0, 225));
                         break;
                     case "Column":
                     case "Bar":
-                        crtStatsDngu.Series["Time spend"].Points.Add(taskDoneListDngu[i].GetCountTimeDngu());
-                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = taskDoneListDngu[i].GetDoingDngu();
+                        crtStatsDngu.Series["Time spend"].Points.Add(listTaskDngu[i].GetCountTimeDngu());
+                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = listTaskDngu[i].GetTaskDngu();
                         crtStatsDngu.Series["Time spend"].Points[i].Color = Color.FromArgb(randomColor.Next(0, 225), randomColor.Next(0, 225), randomColor.Next(0, 225));
                         break;
                 }
@@ -148,62 +147,39 @@ namespace TimerSpenderDngu30sep2022
             Marshal.ReleaseComObject(xlApp);
         }
 
-        private void handleAddExcelItemsToTaskDoneListDngu(DoingDngu p_taskFormExcel)
+        private void handleAddExcelItemsToTaskListDngu(DoingDngu p_taskFormExcel)
         {
             /* 
-             * 1. if donelist empty then adding niew task (object) in
-             * 2. if donelist not empty:
-             *  - check if there an task with same name exist in the donelist , if that then increase the time of the task an break the if 
+             * 1. if tasklist empty then adding niew task (object) in
+             * 2. if tasklist not empty:
+             *  - check if there an task with same name exist in the tasklist , if that then increase the time of the task an break the if 
              *  - if there not exist an task with same name and this is the last element in the list , then adding the task to the list and break the if
              */
-            if (!taskDoneListDngu.Any())
+            if (!listTaskDngu.Any())
             {
-                taskDoneListDngu.Add(p_taskFormExcel);
+                listTaskDngu.Add(p_taskFormExcel);
             }
             else
             {
-                for (int i = 0; i < taskDoneListDngu.Count; i++)
+                for (int i = 0; i < listTaskDngu.Count; i++)
                 {
-                    if (taskDoneListDngu[i].GetDoingDngu() == p_taskFormExcel.GetDoingDngu() && taskDoneListDngu[i].GetDateOfTaskDngu() == p_taskFormExcel.GetDateOfTaskDngu())
+                    if (listTaskDngu[i].GetTaskDngu() == p_taskFormExcel.GetTaskDngu() && listTaskDngu[i].GetDateOfTaskDngu() == p_taskFormExcel.GetDateOfTaskDngu())
                     {
-                        taskDoneListDngu[i].SetCountimeDngu(p_taskFormExcel.GetCountTimeDngu());
+                        p_taskFormExcel.SetCountimeDngu(listTaskDngu[i].GetCountTimeDngu());
+                        listTaskDngu.Add(p_taskFormExcel);
+                        listTaskDngu.RemoveAt(i);
                         break;
                     }
-                    else if (taskDoneListDngu[i].GetDoingDngu() == p_taskFormExcel.GetDoingDngu() && taskDoneListDngu[i].GetDateOfTaskDngu() != p_taskFormExcel.GetDateOfTaskDngu())
+                    else if (listTaskDngu[i].GetTaskDngu() == p_taskFormExcel.GetTaskDngu() && listTaskDngu[i].GetDateOfTaskDngu() != p_taskFormExcel.GetDateOfTaskDngu())
                     {
-                        taskDoneListDngu.Add(p_taskFormExcel);
+                        listTaskDngu.Add(p_taskFormExcel);
                         break;
                     }
-                    else if (i == taskDoneListDngu.Count - 1 && taskDoneListDngu[i].GetDoingDngu() != p_taskFormExcel.GetDoingDngu())
+                    else if (i == listTaskDngu.Count - 1 && listTaskDngu[i].GetTaskDngu() != p_taskFormExcel.GetTaskDngu())
                     {
-                        taskDoneListDngu.Add(p_taskFormExcel);
+                        listTaskDngu.Add(p_taskFormExcel);
                         break;
                     }
-                }
-            }
-        }
-
-        private void handleAddExcelItemstoTaskListDngu(DoingDngu p_taskFormExcel)
-        {
-            /* 
-            * 1. standart in the tasklist already exist a tasks
-            *  - check if there an task with same name exist in the tasklist , if that then increase the time of the task an break the if 
-            *  - if there not exist an task with same name and this is the last element in the list , then adding the task to the list and break the if
-            */
-            for (int i = 0; i < taskListDngu.Count; i++)
-            {
-                //if (taskListDngu[i].GetDoingDngu() == p_taskFormExcel.GetDoingDngu() && taskListDngu[i].GetDateOfTaskDngu() == p_taskFormExcel.GetDateOfTaskDngu() )
-                //{
-                //    taskListDngu[i].SetCountimeDngu(p_taskFormExcel.GetCountTimeDngu());
-                //}
-                if(taskListDngu[i].GetDoingDngu() == p_taskFormExcel.GetDoingDngu() && taskListDngu[i].GetDateOfTaskDngu() != p_taskFormExcel.GetDateOfTaskDngu())
-                {
-                    taskListDngu.Add(p_taskFormExcel);
-                }
-                if (i == taskListDngu.Count - 1 && taskListDngu[i].GetDoingDngu() != p_taskFormExcel.GetDoingDngu() && taskListDngu[i].GetDateOfTaskDngu() != p_taskFormExcel.GetDateOfTaskDngu())
-                {
-                    taskListDngu.Add(p_taskFormExcel);
-                    break;
                 }
             }
         }
@@ -213,7 +189,7 @@ namespace TimerSpenderDngu30sep2022
             //loading custom cursor
             formMainDngu.LoadCursorDngu(this);
             //load tasks to listbox
-            LoadDefaultTaskToListBoxDngu(taskListDngu);
+            LoadDefaultTaskToListBoxDngu();
             // set value for numericUpDown box 
             nudLogIntervalDngu.Value = timeSpendDngu;
             // turnof Close (x) button
@@ -230,26 +206,16 @@ namespace TimerSpenderDngu30sep2022
         {
             if (txbAddStandartTaskDngu.Text != "")
             {
-                for (var i = 0; i < taskListDngu.Count(); i++ )
+                foreach (var taskName in defaultListTaskDngu)
                 {
-                    //check exist task in tasklist, if this exist and is standart then warning
-                    if (txbAddStandartTaskDngu.Text == taskListDngu[i].GetDoingDngu() && taskListDngu[i].GetIsDefaultDngu() == true)
+                    if (taskName == txbAddStandartTaskDngu.Text)
                     {
-                        MessageBox.Show("the task name already in exist, please make an others","Warning",MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("the task name already in exist, please make an others", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         break;
                     }
-                    // if task exist and is not default then set is as default
-                    else if (txbAddStandartTaskDngu.Text == taskListDngu[i].GetDoingDngu() && taskListDngu[i].GetIsDefaultDngu() != true)
+                    else
                     {
-                        taskListDngu[i].setAsDefaultDngu();
-                    }
-                    if ( i == taskListDngu.Count()-1 && txbAddStandartTaskDngu.Text != taskListDngu[i].GetDoingDngu())
-                    {
-                        // make a new default task
-                        DoingDngu newTaskDngu = new DoingDngu(txbAddStandartTaskDngu.Text, 0,dateTimeNowDngu.ToShortDateString());
-                        //adding to the list
-                        taskListDngu.Add(newTaskDngu);
-                        // load the list to listbox
+                        defaultListTaskDngu.Add(txbAddStandartTaskDngu.Text);
                         txbAddStandartTaskDngu.Text = "";
                         break;
                     }
@@ -259,22 +225,22 @@ namespace TimerSpenderDngu30sep2022
             {
                 MessageBox.Show("please fill in the field before adding!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            LoadDefaultTaskToListBoxDngu(taskListDngu);
+            LoadDefaultTaskToListBoxDngu();
         }
 
         private void btnDeleteTaskDngu_Click(object sender, EventArgs e)
         {
             //delete task in the list, define on selected index of the list box
-            taskListDngu.RemoveAt(lsbTaskDngu.SelectedIndex);
+            defaultListTaskDngu.RemoveAt(lsbTaskDngu.SelectedIndex);
             // loading task to listbox
-            LoadDefaultTaskToListBoxDngu(taskListDngu);
+            LoadDefaultTaskToListBoxDngu();
         }
 
         private void btnSaveSetttingDngu_Click(object sender, EventArgs e)
         {
             // send changed informationi to main form
             //convert value form numericUpDown to int32 and send it to main form to change the timeSpendDngu
-            sendInfoToMainForm(taskListDngu, Convert.ToInt32(nudLogIntervalDngu.Value), defaultSaveLogDngu);
+            sendInfoToMainForm(listTaskDngu, Convert.ToInt32(nudLogIntervalDngu.Value), defaultSaveLogDngu, defaultListTaskDngu);
             // close the form
             this.Close();
         }
@@ -292,12 +258,12 @@ namespace TimerSpenderDngu30sep2022
                 using (writeLogFileDngu)
                 {
                     // loop the task
-                    foreach (var item in taskListDngu)
+                    foreach (var item in listTaskDngu)
                     {
                         // check the task done en write it in txt file
                         if (item.GetCountTimeDngu() > 0)
                         {
-                            writeLogFileDngu.WriteLine(item.GetDoingDngu() + " done in " + item.GetCountTimeDngu().ToString() + " minute" + " on " + item.GetDateOfTaskDngu());
+                            writeLogFileDngu.WriteLine(item.GetTaskDngu() + " done in " + item.GetCountTimeDngu().ToString() + " minute" + " on " + item.GetDateOfTaskDngu());
                         }
                     }
                 }
@@ -343,7 +309,7 @@ namespace TimerSpenderDngu30sep2022
 
         private void btnShowChart_Click(object sender, EventArgs e)
         {
-            if (taskDoneListDngu.Count() >0)
+            if (listTaskDngu.Count() >0)
             {
                 showChartDngu = showChartDngu ? false : true;
                 this.Height = showChartDngu ? 770 : 460;
@@ -390,16 +356,16 @@ namespace TimerSpenderDngu30sep2022
             //define to get last cell have value in excel
             Excel.Range last = xlWorksheet.Cells.SpecialCells(Microsoft.Office.Interop.Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
 
-            if (taskDoneListDngu.Count > 0)
+            if (listTaskDngu.Count > 0)
             {
                 //get emptycell
                 int cellExcelStart = last.Row + 1;
-                for (int i = 0; i < taskDoneListDngu.Count; i++)
+                for (int i = 0; i < listTaskDngu.Count; i++)
                 {
-                    xlWorksheet.Cells[cellExcelStart, 1] = taskDoneListDngu[i].GetDoingDngu();
-                    xlWorksheet.Cells[cellExcelStart, 2] = taskDoneListDngu[i].GetCountTimeDngu();
-                    xlWorksheet.Cells[cellExcelStart, 3] = taskDoneListDngu[i].GetDateOfTaskDngu();
-                    xlWorksheet.Cells[cellExcelStart, 4] = taskDoneListDngu[i].GetIsDefaultDngu();
+                    xlWorksheet.Cells[cellExcelStart, 1] = listTaskDngu[i].GetTaskDngu();
+                    xlWorksheet.Cells[cellExcelStart, 2] = listTaskDngu[i].GetCountTimeDngu();
+                    xlWorksheet.Cells[cellExcelStart, 3] = listTaskDngu[i].GetDateOfTaskDngu();
+                    xlWorksheet.Cells[cellExcelStart, 4] = listTaskDngu[i].GetIsDefaultDngu();
                     cellExcelStart++;
                 }
                 xlApp.Visible = false;
@@ -426,12 +392,9 @@ namespace TimerSpenderDngu30sep2022
                     //make a task (object) and store information in
                     DoingDngu taksFromExecel = new DoingDngu(Convert.ToString(xlRange.Cells[i, 1].Value2), Convert.ToInt32(xlRange.Cells[i, 2].Value2), Convert.ToString(xlRange.Cells[i, 3].Value2)  ,Convert.ToBoolean(xlRange.Cells[i, 4].Value2));
                     //handle adding the task from execel to the list 
-                    handleAddExcelItemsToTaskDoneListDngu(taksFromExecel);
-                    handleAddExcelItemstoTaskListDngu(taksFromExecel);
+                    handleAddExcelItemsToTaskListDngu(taksFromExecel);
                 }
             }
-            //load task to listbox
-            LoadDefaultTaskToListBoxDngu(taskListDngu);
             //generate the chart
             ChartGenerateDngu();
             //close excel
