@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimerSpenderDngu30sep2022", "TimerSpenderDngu30sep2022\TimerSpenderDngu30sep2022.csproj", "{01BB86B5-065D-4C70-B6EB-45B1C74EB68E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01BB86B5-065D-4C70-B6EB-45B1C74EB68E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01BB86B5-065D-4C70-B6EB-45B1C74EB68E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01BB86B5-065D-4C70-B6EB-45B1C74EB68E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01BB86B5-065D-4C70-B6EB-45B1C74EB68E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80AD351C-9430-41A5-8A67-E6651A8B832E}
+	EndGlobalSection
+EndGlobal
