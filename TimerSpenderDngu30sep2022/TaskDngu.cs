@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TimerSpenderDngu30sep2022
 {
-    public class DoingDngu
+    public class TaskDngu
     {
         string doingDngu = "";
         int countTimesDngu = 0;
@@ -14,7 +14,7 @@ namespace TimerSpenderDngu30sep2022
         string dateOfTaskDngu ="";
 
 
-        public DoingDngu(string p_doingDngu, int p_countTimesDngu, string p_dateOfTask, bool p_isDefault = true)
+        public TaskDngu(string p_doingDngu, int p_countTimesDngu, bool p_isDefault, string p_dateOfTask )
         {
             doingDngu = p_doingDngu;
             countTimesDngu = p_countTimesDngu;

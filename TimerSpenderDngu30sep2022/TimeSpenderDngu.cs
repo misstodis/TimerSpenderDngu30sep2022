@@ -21,14 +21,16 @@ namespace TimerSpenderDngu30sep2022
         // date
         DateTime dateTimeNowDngu = DateTime.Now;
         //define class
-        DoingDngu makeTaskDngu = null;
+        TaskDngu makeTaskDngu = null;
         //define a list
-        List<DoingDngu> taskListDngu = new List<DoingDngu>();
+        List<TaskDngu> taskListDngu = new List<TaskDngu>();
         List<string> defaultListTaskDngu = new List<string> { "Home work", "Watching movie", "Sport", "Play game" };
+        List<string> listActionDone = new List<string>();
         //define a path for default save log
         string defaultSaveLogDngu = Application.StartupPath + "DefaultLog.txt";
         //custom cursor
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+
         public static extern IntPtr LoadCursorFromFile(string filename);
 
         public TimeSpenderDngu()
@@ -90,10 +92,11 @@ namespace TimerSpenderDngu30sep2022
             {
                 cmbListTaskDngu.Items.Add(item);
             }
-          
+            
         }
         private void btnSaveWorkDngu_Click(object sender, EventArgs e)
         {
+            listActionDone.Clear();
             if (cmbListTaskDngu.SelectedItem == null && rtbDoDngu.Text == "")
             {
                 MessageBox.Show("Please choose or wirte something todo before saving ", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -103,7 +106,7 @@ namespace TimerSpenderDngu30sep2022
                 string selectedTaskDngu = cmbListTaskDngu.SelectedItem.ToString();
                 if (!taskListDngu.Any())
                 {
-                    makeTaskDngu = new DoingDngu(selectedTaskDngu, timeSpendDngu, dateTimeNowDngu.ToShortDateString());
+                    makeTaskDngu = new TaskDngu(selectedTaskDngu, timeSpendDngu, true,dateTimeNowDngu.ToShortDateString());
                     taskListDngu.Add(makeTaskDngu);
                 }
                 else
@@ -112,18 +115,21 @@ namespace TimerSpenderDngu30sep2022
                     {
                         if (taskListDngu[i].GetTaskDngu() == selectedTaskDngu && taskListDngu[i].GetDateOfTaskDngu() == dateTimeNowDngu.ToShortDateString())
                         {
-                            taskListDngu[i].SetCountimeDngu(timeSpendDngu);
+                            makeTaskDngu = new TaskDngu(selectedTaskDngu, timeSpendDngu, true, dateTimeNowDngu.ToShortDateString());
+                            makeTaskDngu.SetCountimeDngu(taskListDngu[i].GetCountTimeDngu());
+                            taskListDngu.Add(makeTaskDngu);
+                            taskListDngu.RemoveAt(i);
                             break;
                         }
-                        else if(i == taskListDngu.Count() - 1 && taskListDngu[i].GetTaskDngu() == selectedTaskDngu && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
+                        else if( i == taskListDngu.Count() - 1 && taskListDngu[i].GetTaskDngu() == selectedTaskDngu && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
                         {
-                            makeTaskDngu = new DoingDngu(selectedTaskDngu, timeSpendDngu, dateTimeNowDngu.ToShortDateString());
+                            makeTaskDngu = new TaskDngu(selectedTaskDngu, timeSpendDngu, true, dateTimeNowDngu.ToShortDateString());
                             taskListDngu.Add(makeTaskDngu);
                             break;
                         }
                         else if (i == taskListDngu.Count() -1 && taskListDngu[i].GetTaskDngu() != selectedTaskDngu)
                         {
-                            makeTaskDngu = new DoingDngu(selectedTaskDngu, timeSpendDngu, dateTimeNowDngu.ToShortDateString());
+                            makeTaskDngu = new TaskDngu(selectedTaskDngu, timeSpendDngu, true, dateTimeNowDngu.ToShortDateString());
                             taskListDngu.Add(makeTaskDngu);
                             break;
                         }
@@ -134,24 +140,32 @@ namespace TimerSpenderDngu30sep2022
             }
             else if (cmbListTaskDngu.SelectedItem == null && rtbDoDngu.Text != "")
             {
-                for (int i = 0; i < taskListDngu.Count(); i++)
+                if (!taskListDngu.Any())
                 {
-                    if (taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() == dateTimeNowDngu.ToShortDateString())
+                    makeTaskDngu = new TaskDngu(rtbDoDngu.Text, timeSpendDngu, false, dateTimeNowDngu.ToShortDateString());
+                    taskListDngu.Add(makeTaskDngu);
+                }
+                else
+                {
+                    for (int i = 0; i < taskListDngu.Count(); i++)
                     {
-                        taskListDngu[i].SetCountimeDngu(timeSpendDngu);
-                        break;
-                    }
-                    else if (taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
-                    {
-                        makeTaskDngu = new DoingDngu(rtbDoDngu.Text, timeSpendDngu, dateTimeNowDngu.ToShortDateString());
-                        taskListDngu.Add(makeTaskDngu);
-                        break;
-                    }
-                    else if (i == taskListDngu.Count() - 1 && taskListDngu[i].GetTaskDngu() != rtbDoDngu.Text)
-                    {
-                        makeTaskDngu = new DoingDngu(rtbDoDngu.Text, timeSpendDngu, dateTimeNowDngu.ToShortDateString());
-                        taskListDngu.Add(makeTaskDngu);
-                        break;
+                        if (taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() == dateTimeNowDngu.ToShortDateString())
+                        {
+                            taskListDngu[i].SetCountimeDngu(timeSpendDngu);
+                            break;
+                        }
+                        else if (taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
+                        {
+                            makeTaskDngu = new TaskDngu(rtbDoDngu.Text, timeSpendDngu, false, dateTimeNowDngu.ToShortDateString());
+                            taskListDngu.Add(makeTaskDngu);
+                            break;
+                        }
+                        else if (i == taskListDngu.Count() - 1 && taskListDngu[i].GetTaskDngu() != rtbDoDngu.Text)
+                        {
+                            makeTaskDngu = new TaskDngu(rtbDoDngu.Text, timeSpendDngu, false, dateTimeNowDngu.ToShortDateString());
+                            taskListDngu.Add(makeTaskDngu);
+                            break;
+                        }
                     }
                 }
                 //hide the form
@@ -170,19 +184,15 @@ namespace TimerSpenderDngu30sep2022
             //loop the donelist to get what u have done
             foreach (var item in taskListDngu)
             {
+                
                 if (item.GetCountTimeDngu() > 0)
                 {
-                    if (messageDngu == "")
-                    {
-                        messageDngu = item.GetTaskDngu() + " in: " + item.GetCountTimeDngu().ToString() + " minutes done" + " on " + item.GetDateOfTaskDngu() + "\n";
-                    }
-                    else
-                    {
-                        messageDngu = messageDngu + "\n" + item.GetTaskDngu() + " in: " + item.GetCountTimeDngu().ToString() + " minutes done" + " on " + item.GetDateOfTaskDngu() + "\n";
-                    }
+                    messageDngu = item.GetTaskDngu() + " in: " + item.GetCountTimeDngu().ToString() + " minutes done" + " on " + item.GetDateOfTaskDngu();
+                    listActionDone.Add(messageDngu);
                 }
             }
-            MessageBox.Show(messageDngu);
+            var messageAction = string.Join(Environment.NewLine, listActionDone);
+            MessageBox.Show(messageAction);
         }
 
         private void timeToSpendDngu_Tick(object sender, EventArgs e)
@@ -210,7 +220,7 @@ namespace TimerSpenderDngu30sep2022
         }
 
         //this void will get data from settingform throught delegate
-        void loadDataDngu(List<DoingDngu> data, int p_timeSpendDngu, string p_defaultSaveLogDngu , List<string> p_defaultListTaskDngu)
+        void loadDataDngu(List<TaskDngu> data, int p_timeSpendDngu, string p_defaultSaveLogDngu , List<string> p_defaultListTaskDngu)
         {
             // set time spend when the time changed in setting form
             timeSpendDngu = p_timeSpendDngu;
@@ -235,14 +245,6 @@ namespace TimerSpenderDngu30sep2022
             settingFrom.Focus();
             //show the setting form with ShowDialog , this mean that u can ONLY click on second form
             settingFrom.ShowDialog();
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            foreach (var item in taskListDngu)
-            {
-                Console.WriteLine(item.GetTaskDngu() + " in " + item.GetCountTimeDngu() + " on " + item.GetDateOfTaskDngu() + " is default: " + item.GetIsDefaultDngu());
-            }
         }
     }
 }

@@ -49,7 +49,7 @@ namespace TimerSpenderDngu30sep2022
             this.nudLogIntervalDngu = new System.Windows.Forms.NumericUpDown();
             this.lblLogInteralDngu = new System.Windows.Forms.Label();
             this.ofdOpenLogDngu = new System.Windows.Forms.OpenFileDialog();
-            this.crtStatsDngu = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.crtTaskDngu = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.btnShowChart = new System.Windows.Forms.Button();
             this.cmbChartTypesDngu = new System.Windows.Forms.ComboBox();
             this.btnShowExcelDngu = new System.Windows.Forms.Button();
@@ -60,9 +60,17 @@ namespace TimerSpenderDngu30sep2022
             this.timeSpend = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.isDefaultTask = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cmbChartDate = new System.Windows.Forms.ComboBox();
+            this.lblDateSlectionDngu = new System.Windows.Forms.Label();
+            this.lblChartType = new System.Windows.Forms.Label();
+            this.cmbChartSortDngu = new System.Windows.Forms.ComboBox();
+            this.lblPastDays = new System.Windows.Forms.Label();
+            this.btnPastDays = new System.Windows.Forms.Button();
+            this.nudPastdays = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.nudLogIntervalDngu)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.crtStatsDngu)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crtTaskDngu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvExcelDngu)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPastdays)).BeginInit();
             this.SuspendLayout();
             // 
             // lblAddTaskDngu
@@ -262,23 +270,23 @@ namespace TimerSpenderDngu30sep2022
             // 
             this.ofdOpenLogDngu.FileName = "openFileDialog1";
             // 
-            // crtStatsDngu
+            // crtTaskDngu
             // 
             chartArea1.Name = "ChartArea1";
-            this.crtStatsDngu.ChartAreas.Add(chartArea1);
+            this.crtTaskDngu.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            this.crtStatsDngu.Legends.Add(legend1);
-            this.crtStatsDngu.Location = new System.Drawing.Point(14, 473);
-            this.crtStatsDngu.Name = "crtStatsDngu";
+            this.crtTaskDngu.Legends.Add(legend1);
+            this.crtTaskDngu.Location = new System.Drawing.Point(10, 531);
+            this.crtTaskDngu.Name = "crtTaskDngu";
             series1.ChartArea = "ChartArea1";
             series1.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 8.999999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             series1.LabelForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             series1.Legend = "Legend1";
             series1.Name = "Time spend";
-            this.crtStatsDngu.Series.Add(series1);
-            this.crtStatsDngu.Size = new System.Drawing.Size(663, 243);
-            this.crtStatsDngu.TabIndex = 16;
-            this.crtStatsDngu.Text = "chart1";
+            this.crtTaskDngu.Series.Add(series1);
+            this.crtTaskDngu.Size = new System.Drawing.Size(668, 308);
+            this.crtTaskDngu.TabIndex = 16;
+            this.crtTaskDngu.Text = "chart1";
             // 
             // btnShowChart
             // 
@@ -302,7 +310,7 @@ namespace TimerSpenderDngu30sep2022
             this.cmbChartTypesDngu.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 8.999999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cmbChartTypesDngu.ForeColor = System.Drawing.Color.Goldenrod;
             this.cmbChartTypesDngu.FormattingEnabled = true;
-            this.cmbChartTypesDngu.Location = new System.Drawing.Point(14, 446);
+            this.cmbChartTypesDngu.Location = new System.Drawing.Point(282, 446);
             this.cmbChartTypesDngu.Name = "cmbChartTypesDngu";
             this.cmbChartTypesDngu.Size = new System.Drawing.Size(121, 23);
             this.cmbChartTypesDngu.TabIndex = 18;
@@ -404,20 +412,115 @@ namespace TimerSpenderDngu30sep2022
             this.isDefaultTask.Name = "isDefaultTask";
             this.isDefaultTask.ReadOnly = true;
             // 
+            // cmbChartDate
+            // 
+            this.cmbChartDate.BackColor = System.Drawing.Color.DarkSlateGray;
+            this.cmbChartDate.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 8.999999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmbChartDate.ForeColor = System.Drawing.Color.Goldenrod;
+            this.cmbChartDate.FormattingEnabled = true;
+            this.cmbChartDate.Items.AddRange(new object[] {
+            "All"});
+            this.cmbChartDate.Location = new System.Drawing.Point(553, 446);
+            this.cmbChartDate.Name = "cmbChartDate";
+            this.cmbChartDate.Size = new System.Drawing.Size(121, 23);
+            this.cmbChartDate.TabIndex = 23;
+            this.cmbChartDate.SelectedIndexChanged += new System.EventHandler(this.cmbChartDate_SelectedIndexChanged);
+            // 
+            // lblDateSlectionDngu
+            // 
+            this.lblDateSlectionDngu.AutoSize = true;
+            this.lblDateSlectionDngu.BackColor = System.Drawing.Color.Transparent;
+            this.lblDateSlectionDngu.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 15.75F, System.Drawing.FontStyle.Bold);
+            this.lblDateSlectionDngu.ForeColor = System.Drawing.Color.Goldenrod;
+            this.lblDateSlectionDngu.Location = new System.Drawing.Point(409, 444);
+            this.lblDateSlectionDngu.Name = "lblDateSlectionDngu";
+            this.lblDateSlectionDngu.Size = new System.Drawing.Size(145, 26);
+            this.lblDateSlectionDngu.TabIndex = 24;
+            this.lblDateSlectionDngu.Text = "Date selection:";
+            // 
+            // lblChartType
+            // 
+            this.lblChartType.AutoSize = true;
+            this.lblChartType.BackColor = System.Drawing.Color.Transparent;
+            this.lblChartType.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 15.75F, System.Drawing.FontStyle.Bold);
+            this.lblChartType.ForeColor = System.Drawing.Color.Goldenrod;
+            this.lblChartType.Location = new System.Drawing.Point(157, 444);
+            this.lblChartType.Name = "lblChartType";
+            this.lblChartType.Size = new System.Drawing.Size(119, 26);
+            this.lblChartType.TabIndex = 25;
+            this.lblChartType.Text = "Chart Type:";
+            // 
+            // cmbChartSortDngu
+            // 
+            this.cmbChartSortDngu.BackColor = System.Drawing.Color.DarkSlateGray;
+            this.cmbChartSortDngu.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 8.999999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmbChartSortDngu.ForeColor = System.Drawing.Color.Goldenrod;
+            this.cmbChartSortDngu.FormattingEnabled = true;
+            this.cmbChartSortDngu.Location = new System.Drawing.Point(10, 444);
+            this.cmbChartSortDngu.Name = "cmbChartSortDngu";
+            this.cmbChartSortDngu.Size = new System.Drawing.Size(121, 23);
+            this.cmbChartSortDngu.TabIndex = 26;
+            this.cmbChartSortDngu.SelectedIndexChanged += new System.EventHandler(this.cmbChartSortDngu_SelectedIndexChanged);
+            // 
+            // lblPastDays
+            // 
+            this.lblPastDays.AutoSize = true;
+            this.lblPastDays.BackColor = System.Drawing.Color.Transparent;
+            this.lblPastDays.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 15.75F, System.Drawing.FontStyle.Bold);
+            this.lblPastDays.ForeColor = System.Drawing.Color.Goldenrod;
+            this.lblPastDays.Location = new System.Drawing.Point(157, 492);
+            this.lblPastDays.Name = "lblPastDays";
+            this.lblPastDays.Size = new System.Drawing.Size(101, 26);
+            this.lblPastDays.TabIndex = 28;
+            this.lblPastDays.Text = "Past days:";
+            // 
+            // btnPastDays
+            // 
+            this.btnPastDays.BackColor = System.Drawing.Color.DarkSlateGray;
+            this.btnPastDays.FlatAppearance.BorderColor = System.Drawing.Color.Goldenrod;
+            this.btnPastDays.FlatAppearance.CheckedBackColor = System.Drawing.Color.DarkCyan;
+            this.btnPastDays.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPastDays.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 8.999999F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnPastDays.ForeColor = System.Drawing.Color.Goldenrod;
+            this.btnPastDays.Location = new System.Drawing.Point(427, 496);
+            this.btnPastDays.Name = "btnPastDays";
+            this.btnPastDays.Size = new System.Drawing.Size(127, 24);
+            this.btnPastDays.TabIndex = 29;
+            this.btnPastDays.Text = "Check";
+            this.btnPastDays.UseVisualStyleBackColor = false;
+            this.btnPastDays.Click += new System.EventHandler(this.btnPastDays_Click);
+            // 
+            // nudPastdays
+            // 
+            this.nudPastdays.BackColor = System.Drawing.Color.DarkSlateGray;
+            this.nudPastdays.Font = new System.Drawing.Font("BeaufortforLOL-Bold", 9.75F, System.Drawing.FontStyle.Bold);
+            this.nudPastdays.ForeColor = System.Drawing.Color.Goldenrod;
+            this.nudPastdays.Location = new System.Drawing.Point(262, 496);
+            this.nudPastdays.Name = "nudPastdays";
+            this.nudPastdays.Size = new System.Drawing.Size(159, 24);
+            this.nudPastdays.TabIndex = 30;
+            // 
             // frmSettingDngu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::TimerSpenderDngu30sep2022.Properties.Resources.brackets_bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(1228, 731);
+            this.ClientSize = new System.Drawing.Size(1224, 850);
+            this.Controls.Add(this.nudPastdays);
+            this.Controls.Add(this.btnPastDays);
+            this.Controls.Add(this.lblPastDays);
+            this.Controls.Add(this.cmbChartSortDngu);
+            this.Controls.Add(this.lblChartType);
+            this.Controls.Add(this.lblDateSlectionDngu);
+            this.Controls.Add(this.cmbChartDate);
             this.Controls.Add(this.dgvExcelDngu);
             this.Controls.Add(this.btnDisplayExcel);
             this.Controls.Add(this.btnSaveExcelDngu);
             this.Controls.Add(this.btnShowExcelDngu);
             this.Controls.Add(this.cmbChartTypesDngu);
             this.Controls.Add(this.btnShowChart);
-            this.Controls.Add(this.crtStatsDngu);
+            this.Controls.Add(this.crtTaskDngu);
             this.Controls.Add(this.lblLogInteralDngu);
             this.Controls.Add(this.nudLogIntervalDngu);
             this.Controls.Add(this.txbFilelocationDngu);
@@ -438,8 +541,9 @@ namespace TimerSpenderDngu30sep2022
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.frmSettingDngu_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nudLogIntervalDngu)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.crtStatsDngu)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crtTaskDngu)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvExcelDngu)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPastdays)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -461,7 +565,7 @@ namespace TimerSpenderDngu30sep2022
         private NumericUpDown nudLogIntervalDngu;
         private Label lblLogInteralDngu;
         private OpenFileDialog ofdOpenLogDngu;
-        private System.Windows.Forms.DataVisualization.Charting.Chart crtStatsDngu;
+        private System.Windows.Forms.DataVisualization.Charting.Chart crtTaskDngu;
         private Button btnShowChart;
         private ComboBox cmbChartTypesDngu;
         private Button btnShowExcelDngu;
@@ -472,5 +576,12 @@ namespace TimerSpenderDngu30sep2022
         private DataGridViewTextBoxColumn timeSpend;
         private DataGridViewTextBoxColumn date;
         private DataGridViewTextBoxColumn isDefaultTask;
+        private ComboBox cmbChartDate;
+        private Label lblDateSlectionDngu;
+        private Label lblChartType;
+        private ComboBox cmbChartSortDngu;
+        private Label lblPastDays;
+        private Button btnPastDays;
+        private NumericUpDown nudPastdays;
     }
 }

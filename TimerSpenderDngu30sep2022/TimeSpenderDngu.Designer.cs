@@ -41,7 +41,6 @@ namespace TimerSpenderDngu30sep2022
             this.lblTypingDoDngu = new System.Windows.Forms.Label();
             this.tmrToSpendDngu = new System.Windows.Forms.Timer(this.components);
             this.btnSettingDngu = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // cmbListTaskDngu
@@ -152,16 +151,6 @@ namespace TimerSpenderDngu30sep2022
             this.btnSettingDngu.UseVisualStyleBackColor = false;
             this.btnSettingDngu.Click += new System.EventHandler(this.btnSettingDngu_Click);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(231, 45);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
-            // 
             // TimeSpenderDngu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -170,7 +159,6 @@ namespace TimerSpenderDngu30sep2022
             this.BackgroundImage = global::TimerSpenderDngu30sep2022.Properties.Resources.brackets_bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(425, 440);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.btnSettingDngu);
             this.Controls.Add(this.lblTypingDoDngu);
             this.Controls.Add(this.btnShowDngu);
@@ -199,6 +187,5 @@ namespace TimerSpenderDngu30sep2022
         private Label lblTypingDoDngu;
         private System.Windows.Forms.Timer tmrToSpendDngu;
         private Button btnSettingDngu;
-        private Button button1;
     }
 }

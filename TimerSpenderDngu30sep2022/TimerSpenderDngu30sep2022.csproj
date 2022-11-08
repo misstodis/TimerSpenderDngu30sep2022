@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DoingDngu.cs" />
+    <Compile Include="TaskDngu.cs" />
     <Compile Include="TimeSpenderDngu.cs">
       <SubType>Form</SubType>
     </Compile>

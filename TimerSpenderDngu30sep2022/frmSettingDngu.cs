@@ -17,28 +17,32 @@ using Microsoft.Office.Interop.Excel;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
 using System.Diagnostics;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace TimerSpenderDngu30sep2022
 {
     public partial class frmSettingDngu : Form
     {
-        bool showChartDngu =false;
+        bool showChartDngu = false;
         bool showExcelDngu = false;
         TimeSpenderDngu formMainDngu = new TimeSpenderDngu();
         //define a list 
-        List<DoingDngu> listTaskDngu = new List<DoingDngu>();
+        List<TaskDngu> taskListDngu = new List<TaskDngu>();
         List<string> defaultListTaskDngu = new List<string>();
+        List<string> listTaskDateDngu = new List<string>();
         // define time spend
         int timeSpendDngu;
         //define a default path for save log
         string defaultSaveLogDngu;
         //make a delegate to comunicate with main form (SEND info from this to the main form)
-        public delegate void sendToMainForm(List<DoingDngu> list, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu);
+        public delegate void sendToMainForm(List<TaskDngu> list, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu);
         public sendToMainForm sendInfoToMainForm;
         //chart types
-        string[] chartTypes = new string[] {"Column", "Bar", "Pie" };
+        string[] chartTypesDngu = new string[] { "Column", "Bar", "Pie" };
+        string[] chartSortDngu = new string[] { "Name Ascending", "Name Descending", "Time Ascending", "Time Decending", "Date Ascending", "Date Descending" };
         //random for color
-        Random randomColor = new Random();
+        Random randomColorDngu = new Random();
         //excel
         string defaultExcelPathDngu = ApplicationDngu.StartupPath + "DefaultSaveTask.xlsx";
         Workbook xlWorkbook;
@@ -49,14 +53,16 @@ namespace TimerSpenderDngu30sep2022
         FileInfo fileInfo = null;
         // date
         DateTime dateTimeNowDngu = DateTime.Now;
+        //list of past date
+        List<string> listPastDays = new List<string>();
 
 
         // define form contructor with a parmameter to GET information from main form
-        public frmSettingDngu(List<DoingDngu> p_taskListDngu, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu)
+        public frmSettingDngu(List<TaskDngu> p_taskListDngu, int p_timeSpendDngu, string p_defaultSaveLogDngu, List<string> p_defaultListTaskDngu)
         {
             InitializeComponent();
             //get the task list from main form
-            listTaskDngu = p_taskListDngu;
+            taskListDngu = p_taskListDngu;
             // set time to timeSpendDngu
             timeSpendDngu = p_timeSpendDngu;
             // set value for numerUpdown box
@@ -65,7 +71,6 @@ namespace TimerSpenderDngu30sep2022
             defaultSaveLogDngu = p_defaultSaveLogDngu;
             // show save path in text box
             txbFilelocationDngu.Text = p_defaultSaveLogDngu;
-
             defaultListTaskDngu = p_defaultListTaskDngu;
         }
 
@@ -80,30 +85,81 @@ namespace TimerSpenderDngu30sep2022
             }
         }
 
-        private void ChartGenerateDngu(string chartType = "Column")
+        private void HandleSetChartDateDngu()
+        {
+            cmbChartDate.Items.Clear();
+            cmbChartDate.Items.Add("All");
+            cmbChartDate.SelectedIndex = 0;
+            var UniqueDates = listTaskDateDngu.Distinct().ToList();
+            foreach (var date in UniqueDates)
+            {
+                cmbChartDate.Items.Add(date);
+            }
+        }
+        private void ChartCreate(TaskDngu p_task , int p_chartStart , string p_chartType)
+        {
+            switch (p_chartType)
+            {
+                case "Pie":
+                    crtTaskDngu.Series["Time spend"].Points.Add(taskListDngu[p_chartStart].GetCountTimeDngu());
+                    crtTaskDngu.Series["Time spend"].Points[p_chartStart].AxisLabel = p_task.GetCountTimeDngu().ToString();
+                    crtTaskDngu.Series["Time spend"].Points[p_chartStart].LegendText = p_task.GetTaskDngu();
+                    crtTaskDngu.Series["Time spend"].Points[p_chartStart].Color = Color.FromArgb(randomColorDngu.Next(0, 225), randomColorDngu.Next(0, 225), randomColorDngu.Next(0, 225));
+                    //p_chartStart++;
+                    break;
+                case "Column":
+                case "Bar":
+                    crtTaskDngu.Series["Time spend"].Points.Add(p_task.GetCountTimeDngu());
+                    crtTaskDngu.Series["Time spend"].Points[p_chartStart].AxisLabel = p_task.GetTaskDngu();
+                    crtTaskDngu.Series["Time spend"].Points[p_chartStart].Color = Color.FromArgb(randomColorDngu.Next(0, 225), randomColorDngu.Next(0, 225), randomColorDngu.Next(0, 225));
+                    //p_chartStart++;
+                    break;
+            }
+        }
+        private void ChartGenerateDngu(string p_dateTask = "All", List<string> p_listPastDays = null, string p_chartType = "Column")
         {
             // clean the chart
-            crtStatsDngu.Series["Time spend"].Points.Clear();
+            crtTaskDngu.Series["Time spend"].Points.Clear();
             //loop and print information to chart
-            for (int i = 0; i < listTaskDngu.Count(); i++)
+            int chartStartDngu = 0;
+
+            if (p_dateTask == "All")
             {
-                // check for slected type of the chart
-                switch (chartType)
+                foreach (var taskDngu in taskListDngu)
                 {
-                    case "Pie":
-                        crtStatsDngu.Series["Time spend"].Points.Add(listTaskDngu[i].GetCountTimeDngu());
-                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = listTaskDngu[i].GetCountTimeDngu().ToString();
-                        crtStatsDngu.Series["Time spend"].Points[i].LegendText = listTaskDngu[i].GetTaskDngu();
-                        crtStatsDngu.Series["Time spend"].Points[i].Color = Color.FromArgb(randomColor.Next(0, 225), randomColor.Next(0, 225), randomColor.Next(0, 225));
-                        break;
-                    case "Column":
-                    case "Bar":
-                        crtStatsDngu.Series["Time spend"].Points.Add(listTaskDngu[i].GetCountTimeDngu());
-                        crtStatsDngu.Series["Time spend"].Points[i].AxisLabel = listTaskDngu[i].GetTaskDngu();
-                        crtStatsDngu.Series["Time spend"].Points[i].Color = Color.FromArgb(randomColor.Next(0, 225), randomColor.Next(0, 225), randomColor.Next(0, 225));
-                        break;
+                    // check for slected type of the chart
+                    ChartCreate(taskDngu, chartStartDngu, p_chartType);
+                    chartStartDngu++;
                 }
             }
+            else
+            {
+                if (p_listPastDays != null)
+                {
+                    foreach (var taskDngu in taskListDngu)
+                    {
+                        if (listPastDays.Contains(taskDngu.GetDateOfTaskDngu()))
+                        {
+                            // check for slected type of the chart
+                            ChartCreate(taskDngu, chartStartDngu, p_chartType);
+                            chartStartDngu++;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var taskDngu in taskListDngu)
+                    {
+                        if (p_dateTask == taskDngu.GetDateOfTaskDngu())
+                        {
+                            // check for slected type of the chart
+                            ChartCreate(taskDngu, chartStartDngu, p_chartType);
+                            chartStartDngu++;
+                        }
+                    }
+                }
+            }
+
         }
 
         public void CheckForExcelDoc()
@@ -147,7 +203,7 @@ namespace TimerSpenderDngu30sep2022
             Marshal.ReleaseComObject(xlApp);
         }
 
-        private void handleAddExcelItemsToTaskListDngu(DoingDngu p_taskFormExcel)
+        private void handleAddExcelItemsToTaskListDngu(TaskDngu p_taskFromExcel)
         {
             /* 
              * 1. if tasklist empty then adding niew task (object) in
@@ -155,29 +211,34 @@ namespace TimerSpenderDngu30sep2022
              *  - check if there an task with same name exist in the tasklist , if that then increase the time of the task an break the if 
              *  - if there not exist an task with same name and this is the last element in the list , then adding the task to the list and break the if
              */
-            if (!listTaskDngu.Any())
+            if (!taskListDngu.Any())
             {
-                listTaskDngu.Add(p_taskFormExcel);
+                taskListDngu.Add(p_taskFromExcel);
             }
             else
             {
-                for (int i = 0; i < listTaskDngu.Count; i++)
+                for (int i = 0; i < taskListDngu.Count; i++)
                 {
-                    if (listTaskDngu[i].GetTaskDngu() == p_taskFormExcel.GetTaskDngu() && listTaskDngu[i].GetDateOfTaskDngu() == p_taskFormExcel.GetDateOfTaskDngu())
+                    //int index = taskListDngu.FindIndex(indexD => indexD.GetTaskDngu() == p_taskFromExcel.GetTaskDngu());
+                    //int indexDengu = taskListDngu.FindIndex(indexD => indexD.GetDateOfTaskDngu() == p_taskFromExcel.GetDateOfTaskDngu());
+
+                    Console.WriteLine(taskListDngu[i].GetTaskDngu() + " on " + taskListDngu[i].GetDateOfTaskDngu() + " VS " + p_taskFromExcel.GetTaskDngu() + " on " + p_taskFromExcel.GetDateOfTaskDngu());
+                    if (taskListDngu[i].GetTaskDngu() == p_taskFromExcel.GetTaskDngu() && taskListDngu[i].GetDateOfTaskDngu() == p_taskFromExcel.GetDateOfTaskDngu())
                     {
-                        p_taskFormExcel.SetCountimeDngu(listTaskDngu[i].GetCountTimeDngu());
-                        listTaskDngu.Add(p_taskFormExcel);
-                        listTaskDngu.RemoveAt(i);
+                        Console.WriteLine("COUNT UP");
+                        taskListDngu[i].SetCountimeDngu(p_taskFromExcel.GetCountTimeDngu());
                         break;
                     }
-                    else if (listTaskDngu[i].GetTaskDngu() == p_taskFormExcel.GetTaskDngu() && listTaskDngu[i].GetDateOfTaskDngu() != p_taskFormExcel.GetDateOfTaskDngu())
+                    else if (i == taskListDngu.Count - 1 && taskListDngu[i].GetTaskDngu() == p_taskFromExcel.GetTaskDngu() && taskListDngu[i].GetDateOfTaskDngu() != p_taskFromExcel.GetDateOfTaskDngu() )
                     {
-                        listTaskDngu.Add(p_taskFormExcel);
+                        Console.WriteLine("NOT same Date : ADD");
+                        taskListDngu.Add(p_taskFromExcel);
                         break;
                     }
-                    else if (i == listTaskDngu.Count - 1 && listTaskDngu[i].GetTaskDngu() != p_taskFormExcel.GetTaskDngu())
+                    else if (i == taskListDngu.Count - 1 && taskListDngu[i].GetTaskDngu() != p_taskFromExcel.GetTaskDngu())
                     {
-                        listTaskDngu.Add(p_taskFormExcel);
+                        Console.WriteLine("LAST : ADD");
+                        taskListDngu.Add(p_taskFromExcel);
                         break;
                     }
                 }
@@ -195,11 +256,22 @@ namespace TimerSpenderDngu30sep2022
             // turnof Close (x) button
             this.ControlBox = false;
             //adding chart types in combobox
-            cmbChartTypesDngu.Items.AddRange(chartTypes);
+            cmbChartTypesDngu.Items.AddRange(chartTypesDngu);
             cmbChartTypesDngu.SelectedIndex = 0;
             //set size form
             this.Width = 705;
             this.Height = 460;
+            //loading date to combobox
+            listTaskDateDngu.Add(dateTimeNowDngu.ToShortDateString());
+            cmbChartDate.SelectedIndex = 0;
+            //adding chart sort in combobox
+            cmbChartSortDngu.Items.AddRange(chartSortDngu);
+            cmbChartSortDngu.SelectedIndex = 0;
+            //adding date of task to list
+            foreach (var task in taskListDngu)
+            {
+                listTaskDateDngu.Add(task.GetDateOfTaskDngu());
+            }
         }
 
         private void btnAddStandartTaskDngu_Click(object sender, EventArgs e)
@@ -240,7 +312,7 @@ namespace TimerSpenderDngu30sep2022
         {
             // send changed informationi to main form
             //convert value form numericUpDown to int32 and send it to main form to change the timeSpendDngu
-            sendInfoToMainForm(listTaskDngu, Convert.ToInt32(nudLogIntervalDngu.Value), defaultSaveLogDngu, defaultListTaskDngu);
+            sendInfoToMainForm(taskListDngu, Convert.ToInt32(nudLogIntervalDngu.Value), defaultSaveLogDngu, defaultListTaskDngu);
             // close the form
             this.Close();
         }
@@ -258,7 +330,7 @@ namespace TimerSpenderDngu30sep2022
                 using (writeLogFileDngu)
                 {
                     // loop the task
-                    foreach (var item in listTaskDngu)
+                    foreach (var item in taskListDngu)
                     {
                         // check the task done en write it in txt file
                         if (item.GetCountTimeDngu() > 0)
@@ -309,38 +381,43 @@ namespace TimerSpenderDngu30sep2022
 
         private void btnShowChart_Click(object sender, EventArgs e)
         {
-            if (listTaskDngu.Count() >0)
+            if (taskListDngu.Count() > 0)
             {
                 showChartDngu = showChartDngu ? false : true;
-                this.Height = showChartDngu ? 770 : 460;
+                this.Height = showChartDngu ? 889 : 460;
                 btnShowChart.Text = showChartDngu ? "Hide chart" : "Show chart";
-                ChartGenerateDngu(cmbChartTypesDngu.SelectedItem.ToString());
+                cmbChartDate.SelectedIndex = 0;
+                ChartGenerateDngu();
+                HandleSetChartDateDngu();
             }
             else
             {
                 MessageBox.Show("there are nothing");
             }
-           
+
         }
 
         private void cmbChartTypesDngu_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //check slected text in combobox
-            switch (cmbChartTypesDngu.SelectedItem.ToString())
+            if (listTaskDateDngu.Count > 0)
             {
-                // change chart type and generate chart
-                case "Column":
-                    crtStatsDngu.Series["Time spend"].ChartType = SeriesChartType.Column;
-                    ChartGenerateDngu(cmbChartTypesDngu.SelectedItem.ToString());
-                    break;
-                case "Bar":
-                    crtStatsDngu.Series["Time spend"].ChartType = SeriesChartType.Bar;
-                    ChartGenerateDngu(cmbChartTypesDngu.SelectedItem.ToString());
-                    break;
-                case "Pie":
-                    crtStatsDngu.Series["Time spend"].ChartType = SeriesChartType.Pie;
-                    ChartGenerateDngu(cmbChartTypesDngu.SelectedItem.ToString());
-                    break;
+                //check slected text in combobox
+                switch (cmbChartTypesDngu.SelectedItem.ToString())
+                {
+                    // change chart type and generate chart
+                    case "Column":
+                        crtTaskDngu.Series["Time spend"].ChartType = SeriesChartType.Column;
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Bar":
+                        crtTaskDngu.Series["Time spend"].ChartType = SeriesChartType.Bar;
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Pie":
+                        crtTaskDngu.Series["Time spend"].ChartType = SeriesChartType.Pie;
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                }
             }
         }
 
@@ -356,16 +433,19 @@ namespace TimerSpenderDngu30sep2022
             //define to get last cell have value in excel
             Excel.Range last = xlWorksheet.Cells.SpecialCells(Microsoft.Office.Interop.Excel.XlCellType.xlCellTypeLastCell, Type.Missing);
 
-            if (listTaskDngu.Count > 0)
+            if (taskListDngu.Count > 0)
             {
                 //get emptycell
                 int cellExcelStart = last.Row + 1;
-                for (int i = 0; i < listTaskDngu.Count; i++)
+                for (int i = 0; i < taskListDngu.Count; i++)
                 {
-                    xlWorksheet.Cells[cellExcelStart, 1] = listTaskDngu[i].GetTaskDngu();
-                    xlWorksheet.Cells[cellExcelStart, 2] = listTaskDngu[i].GetCountTimeDngu();
-                    xlWorksheet.Cells[cellExcelStart, 3] = listTaskDngu[i].GetDateOfTaskDngu();
-                    xlWorksheet.Cells[cellExcelStart, 4] = listTaskDngu[i].GetIsDefaultDngu();
+                    xlWorksheet.Cells[cellExcelStart, 1] = taskListDngu[i].GetTaskDngu();
+                    cellExcelStart++;
+                    xlWorksheet.Cells[cellExcelStart, 1] = taskListDngu[i].GetCountTimeDngu();
+                    cellExcelStart++;
+                    xlWorksheet.Cells[cellExcelStart, 1] = taskListDngu[i].GetIsDefaultDngu();
+                    cellExcelStart++;
+                    xlWorksheet.Cells[cellExcelStart, 1] = DateTime.Parse(taskListDngu[i].GetDateOfTaskDngu()).ToOADate();
                     cellExcelStart++;
                 }
                 xlApp.Visible = false;
@@ -377,28 +457,128 @@ namespace TimerSpenderDngu30sep2022
         }
         private void btnDisplayExcel_Click(object sender, EventArgs e)
         {
+            string taskNameDngu, taskDateDngu;
+            int taskTimeDngu;
+            bool taskIsDefDngu;
+            int cellExcelStart = 1;
             //cleart tabel
             dgvExcelDngu.Rows.Clear();
             dgvExcelDngu.Refresh();
             CheckForExcelDoc();
             // make a loop to print value from excel on the tabel
-            //note : excel cell staat at number 1 , that why "int i" in the loop need to be 1
-            for (int i = 1; i <= xlRange.Rows.Count; i++)
+            //note : excel cell staat at number 1
+            for (int i = 0; i < xlRange.Rows.Count / 4; i++)
             {
-                if (xlRange.Cells[i, 1] != null && xlRange.Cells[i, 1].Value2 != null)
+                if (xlRange.Cells[cellExcelStart, 1] != null && xlRange.Cells[cellExcelStart, 1].Value2 != null)
                 {
+                    taskNameDngu = Convert.ToString(xlRange.Cells[cellExcelStart, 1].Value2);
+                    cellExcelStart++;
+                    taskTimeDngu = Convert.ToInt32(xlRange.Cells[cellExcelStart, 1].Value2);
+                    cellExcelStart++;
+                    taskIsDefDngu = Convert.ToBoolean(xlRange.Cells[cellExcelStart, 1].Value2);
+                    cellExcelStart++;
+                    if (xlRange.Cells[cellExcelStart, 1].Value.GetType() == typeof(DateTime))
+                    {
+                        taskDateDngu = xlRange.Cells[cellExcelStart, 1].Value.ToShortDateString();
+                    }
+                    else if (xlRange.Cells[cellExcelStart, 1].Value.GetType() == typeof(Double))
+                    {
+                        taskDateDngu = DateTime.FromOADate(xlRange.Cells[cellExcelStart, 1].Value).ToShortDateString();
+                    }
+                    else
+                    {
+                        taskDateDngu = Convert.ToString(xlRange.Cells[cellExcelStart, 1].Value2);
+                    }
+                    cellExcelStart++;
                     //adding value on tabel
-                    dgvExcelDngu.Rows.Add(xlRange.Cells[i, 1].Value2, xlRange.Cells[i, 2].Value2, xlRange.Cells[i, 3].Value2, xlRange.Cells[i,4].Value2);
+                    dgvExcelDngu.Rows.Add(taskNameDngu, taskTimeDngu, taskDateDngu, taskIsDefDngu);
+
                     //make a task (object) and store information in
-                    DoingDngu taksFromExecel = new DoingDngu(Convert.ToString(xlRange.Cells[i, 1].Value2), Convert.ToInt32(xlRange.Cells[i, 2].Value2), Convert.ToString(xlRange.Cells[i, 3].Value2)  ,Convert.ToBoolean(xlRange.Cells[i, 4].Value2));
+                    TaskDngu taskFromExecel = new TaskDngu(taskNameDngu, taskTimeDngu, taskIsDefDngu, taskDateDngu);
                     //handle adding the task from execel to the list 
-                    handleAddExcelItemsToTaskListDngu(taksFromExecel);
+                    handleAddExcelItemsToTaskListDngu(taskFromExecel);
+                    // adding date to a list
+                    listTaskDateDngu.Add(taskDateDngu);
                 }
             }
-            //generate the chart
-            ChartGenerateDngu();
-            //close excel
             CleanUpExcel();
+            //generate the charts
+            ChartGenerateDngu();
+
+        }
+
+        private void cmbChartDate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChartGenerateDngu(cmbChartDate.SelectedItem.ToString());
+        }
+
+        private void cmbChartSortDngu_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (taskListDngu.Count > 0)
+            {
+                switch (cmbChartSortDngu.SelectedItem.ToString())
+                {
+                    case "Name Ascending":
+                        taskListDngu = taskListDngu.OrderBy(x => x.GetTaskDngu()).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Name Descending":
+                        taskListDngu = taskListDngu.OrderByDescending(x => x.GetTaskDngu()).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Time Ascending":
+                        taskListDngu = taskListDngu.OrderBy(x => x.GetCountTimeDngu()).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Time Decending":
+                        taskListDngu = taskListDngu.OrderByDescending(x => x.GetCountTimeDngu()).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Date Ascending":
+                        taskListDngu = taskListDngu.OrderBy(x => DateTime.Parse(x.GetDateOfTaskDngu())).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays, cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                    case "Date Descending":
+                        taskListDngu = taskListDngu.OrderByDescending(x => DateTime.Parse(x.GetDateOfTaskDngu())).ToList();
+                        ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays,cmbChartTypesDngu.SelectedItem.ToString());
+                        break;
+                }
+            }
+        }
+
+        private void btnPastDays_Click(object sender, EventArgs e)
+        {
+            listPastDays.Clear();
+            double HowManyDays = Convert.ToDouble(nudPastdays.Value);
+            double getDateToday = dateTimeNowDngu.ToOADate();
+            double pastDays ;
+
+            if (cmbChartDate.SelectedItem.ToString() != "All")
+            {
+                double selectedDate = DateTime.Parse(cmbChartDate.SelectedItem.ToString()).ToOADate();
+                Console.WriteLine(selectedDate);
+                for (int i = 0; i <= Convert.ToInt32(HowManyDays); i++)
+                {
+                    pastDays = selectedDate - Convert.ToDouble(i);
+                    listPastDays.Add(DateTime.FromOADate(pastDays).ToShortDateString());
+                    Console.WriteLine(DateTime.FromOADate(pastDays).ToShortDateString());
+                    ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays);
+                }
+            }
+            else if (cmbChartDate.SelectedItem.ToString() == "All")
+            {
+                MessageBox.Show("With All at date selection , you can't select for a past day. \n Please choose a date", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                for (int i = 0; i < Convert.ToInt32(HowManyDays); i++)
+                {
+                    pastDays = getDateToday - Convert.ToDouble(i);
+                    Console.WriteLine(DateTime.FromOADate(pastDays).ToShortDateString());
+                    listPastDays.Add(DateTime.FromOADate(pastDays).ToShortDateString());
+                    ChartGenerateDngu(cmbChartDate.SelectedItem.ToString(), listPastDays);
+                }
+            }
         }
     }
 }
