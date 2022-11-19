@@ -154,7 +154,7 @@ namespace TimerSpenderDngu30sep2022
                             taskListDngu[i].SetCountimeDngu(timeSpendDngu);
                             break;
                         }
-                        else if (taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
+                        else if (i == taskListDngu.Count() - 1 && taskListDngu[i].GetTaskDngu() == rtbDoDngu.Text && taskListDngu[i].GetDateOfTaskDngu() != dateTimeNowDngu.ToShortDateString())
                         {
                             makeTaskDngu = new TaskDngu(rtbDoDngu.Text, timeSpendDngu, false, dateTimeNowDngu.ToShortDateString());
                             taskListDngu.Add(makeTaskDngu);
@@ -184,7 +184,7 @@ namespace TimerSpenderDngu30sep2022
             //loop the donelist to get what u have done
             foreach (var item in taskListDngu)
             {
-                
+
                 if (item.GetCountTimeDngu() > 0)
                 {
                     messageDngu = item.GetTaskDngu() + " in: " + item.GetCountTimeDngu().ToString() + " minutes done" + " on " + item.GetDateOfTaskDngu();
